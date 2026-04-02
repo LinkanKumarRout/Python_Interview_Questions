@@ -1,0 +1,156 @@
+SOLID principles are a set of 5 design principles in object-oriented programming (OOP) that help you write clean, maintainable, scalable, and flexible code.
+
+1. S — Single Responsibility Principle (SRP)
+2. O — Open/Closed Principle (OCP)
+3. L — Liskov Substitution Principle (LSP)
+4. I — Interface Segregation Principle (ISP)
+5. D — Dependency Inversion Principle (DIP)
+
+
+1. S — Single Responsibility Principle (SRP)
+--------------------------------------------
+A class should have only one reason to change.
+Bad Example (violates SRP) -
+class Report:
+    def generate_report(self):
+        print("Generating report")
+
+    def save_to_file(self):
+        print("Saving to file")
+        
+Problem: One class is doing 2 responsibilities (generation + saving)
+
+Good Example - 
+class ReportGenerator:
+    def generate(self):
+        print("Generating report")
+
+class ReportSaver:
+    def save(self, report):
+        print("Saving report")
+
+Now each class has one responsibility
+
+2. O — Open/Closed Principle (OCP)
+-----------------------------------
+Open for extension, closed for modification
+Bad Example -
+class Discount:
+    def calculate(self, customer_type):
+        if customer_type == "regular":
+            return 10
+        elif customer_type == "premium":
+            return 20
+
+Problem: Every time a new type comes → modify code
+
+Good Example - 
+class Discount:
+    def calculate(self):
+        pass
+
+class RegularDiscount(Discount):
+    def calculate(self):
+        return 10
+
+class PremiumDiscount(Discount):
+    def calculate(self):
+        return 20
+
+New discount types can be added without changing existing code
+
+3. L — Liskov Substitution Principle (LSP)
+------------------------------------------
+Child classes should be replaceable for parent classes without breaking code
+Bad Example - 
+class Bird:
+    def fly(self):
+        print("Flying")
+
+class Ostrich(Bird):
+    def fly(self):
+        raise Exception("Can't fly")
+
+Problem: Ostrich breaks expected behavior
+
+Good Example - 
+class Bird:
+    pass
+
+class FlyingBird(Bird):
+    def fly(self):
+        print("Flying")
+
+class Ostrich(Bird):
+    def run(self):
+        print("Running")
+
+Now behavior is consistent
+
+4. I — Interface Segregation Principle (ISP)
+--------------------------------------------
+Don’t force classes to implement methods they don’t use
+Bad Example - 
+class Worker:
+    def work(self):
+        pass
+
+    def eat(self):
+        pass
+
+class Robot(Worker):
+    def eat(self):
+        pass  # Not needed
+
+Problem: Robot forced to implement irrelevant method
+
+Good Example - 
+class Workable:
+    def work(self):
+        pass
+
+class Eatable:
+    def eat(self):
+        pass
+
+class Human(Workable, Eatable):
+    def work(self):
+        print("Working")
+
+    def eat(self):
+        print("Eating")
+
+class Robot(Workable):
+    def work(self):
+        print("Working")
+
+Clean separation of responsibilities
+
+5. D — Dependency Inversion Principle (DIP)
+-------------------------------------------
+Depend on abstractions, not concrete classes
+Bad Example - 
+class MySQLDatabase:
+    def connect(self):
+        print("Connected to MySQL")
+
+class App:
+    def __init__(self):
+        self.db = MySQLDatabase()
+
+Problem: Tight coupling (hard to change DB)
+
+Good Example - 
+class Database:
+    def connect(self):
+        pass
+
+class MySQLDatabase(Database):
+    def connect(self):
+        print("Connected to MySQL")
+
+class App:
+    def __init__(self, db: Database):
+        self.db = db
+
+Now you can easily switch to PostgreSQL, MongoDB, etc.
