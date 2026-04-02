@@ -1,0 +1,75 @@
+Section 2: Data Structures & Algorithms
+Q6. How would you reverse a string in Python without using slicing or reversed()?
+Answer:
+Use a two-pointer technique or a loop to build a new string. Strings are immutable, so we convert to list, swap, then join.
+Explanation approach: "I'll convert the string to a list of characters, then swap characters from both ends using two pointers until they meet."
+def reverse_string(s):
+    chars = list(s)
+    left, right = 0, len(chars) - 1
+    while left < right:
+        chars[left], chars[right] = chars[right], chars[left]
+        left += 1
+        right -= 1
+    return ''.join(chars)
+
+Q7. Implement a function to check if a string is a palindrome, ignoring spaces and case.
+Answer:
+Filter non-alphanumeric characters, convert to lowercase, then compare with reversed version or two-pointer.
+Interview explanation: "Palindromes read the same forward and backward. For real-world applications like checking user input, we ignore case and punctuation."
+import re
+def is_palindrome(s):
+    cleaned = re.sub(r'[^a-zA-Z0-9]', '', s).lower()
+    return cleaned == cleaned[::-1]
+# Two-pointer version for memory efficiency:
+def is_palindrome_two_pointer(s):
+    cleaned = re.sub(r'[^a-zA-Z0-9]', '', s).lower()
+    left, right = 0, len(cleaned) - 1
+    while left < right:
+        if cleaned[left] != cleaned[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+Q8. Explain how to find the first non-repeating character in a string.
+Answer:
+Use collections.Counter to count frequencies, then iterate through the string to find the first char with count 1.
+Time complexity: O(n) time, O(k) space where k is unique characters.
+from collections import Counter
+def first_non_repeating(s):
+    freq = Counter(s)
+    for i, ch in enumerate(s):
+        if freq[ch] == 1:
+            return i, ch
+    return -1  # none found
+
+Q9. Write a function to remove duplicates from a list while preserving order.
+Answer:
+Use an ordered dictionary (dict.fromkeys() in Python 3.7+ preserves insertion order) or a set with a loop.
+def remove_duplicates_preserve_order(lst):
+    seen = set()
+    result = []
+    for item in lst:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+# One-liner: list(dict.fromkeys(lst))
+
+Q10. Explain how to merge two sorted lists into one sorted list.
+Answer:
+Two-pointer technique similar to merge step in merge sort.
+Complexity: O(n+m) time, O(n+m) space for result.
+def merge_sorted(list1, list2):
+    i, j = 0, 0
+    merged = []
+    while i < len(list1) and j < len(list2):
+        if list1[i] < list2[j]:
+            merged.append(list1[i])
+            i += 1
+        else:
+            merged.append(list2[j])
+            j += 1
+    merged.extend(list1[i:])
+    merged.extend(list2[j:])
+    return merged
+
