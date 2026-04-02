@@ -1,0 +1,55 @@
+Q26. How do you read a large file line by line without loading it into memory?
+Answer:
+Use file iteration (lazy loading). For very large files, use for line in file: which reads in chunks (buffered). You can also specify buffer size.
+with open('huge_file.txt', 'r') as f:
+    for line in f:
+        process(line)  # only one line in memory at a time
+
+Q27. Explain json module – serializing custom objects.
+Answer:
+json.dumps() / json.loads() for strings, dump() / load() for files. Custom objects need a default function or subclass JSONEncoder.
+import json
+class Person:
+    def __init__(self, name, age): self.name = name; self.age = age
+def encode_person(obj):
+    if isinstance(obj, Person):
+        return {'__class__': 'Person', 'name': obj.name, 'age': obj.age}
+    raise TypeError
+person = Person("Alice", 30)
+json_str = json.dumps(person, default=encode_person)
+
+Q28. What is the difference between pickle and json?
+Answer:
+json: text-based, human-readable, language-independent (supports dict, list, str, int, float, bool, null). Not safe for arbitrary code execution.
+pickle: binary format, Python-only, can serialize any Python object (functions, classes, custom instances). Not secure – unpickling malicious data can execute code.
+Use case: JSON for APIs/configs; Pickle for caching Python objects internally.
+
+Q29. How do you handle CSV files with csv module?
+import csv
+# Read
+with open('data.csv', 'r') as f:
+    reader = csv.DictReader(f)  # uses first row as keys
+    for row in reader:
+        print(row['name'])
+
+# Write
+with open('out.csv', 'w', newline='') as f:
+    writer = csv.DictWriter(f, fieldnames=['name', 'age'])
+    writer.writeheader()
+    writer.writerow({'name': 'Bob', 'age': 25})
+
+Q30. Explain with statement and context managers.
+Answer:
+with ensures proper acquisition and release of resources. A context manager implements __enter__ and __exit__ methods. __exit__ runs even if an exception occurs.
+Creating a custom context manager:
+class ManagedFile:
+    def __init__(self, filename): self.filename = filename
+    def __enter__(self):
+        self.file = open(self.filename, 'r')
+        return self.file
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.file.close()
+
+with ManagedFile('test.txt') as f:
+    print(f.read())
+
