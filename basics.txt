@@ -1,0 +1,19 @@
+Section 1: Core Python Fundamentals
+
+Q1. What are mutable and immutable data types? Give examples and explain how Python handles them in memory.
+Answer:
+Mutable objects can be changed after creation, while immutable objects cannot.
+Immutable: int, float, str, tuple, frozenset, bool. Any operation that modifies them creates a new object.
+Mutable: list, dict, set, bytearray, custom class instances (by default).
+Memory handling:
+When you pass an immutable object to a function, Python passes a reference, but since you can't modify it, any reassignment creates a new local object.
+For mutable objects, changes inside a function reflect outside because both point to the same memory. 
+Python uses interning for small integers and strings to save memory.
+def modify(x, y):
+    x += 1        # int (immutable) -> new local x
+    y.append(10)  # list (mutable) -> modifies original
+
+a = 5
+b = [1,2]
+modify(a, b)
+print(a, b)  # 5 [1,2,10]  -> a unchanged, b changed
