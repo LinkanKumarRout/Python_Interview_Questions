@@ -17,3 +17,51 @@ a = 5
 b = [1,2]
 modify(a, b)
 print(a, b)  # 5 [1,2,10]  -> a unchanged, b changed
+
+Q2. Explain the difference between deepcopy and shallow copy with examples.
+Answer:
+Shallow copy creates a new object but inserts references to the original’s nested objects.
+Deep copy creates a new object and recursively copies all nested objects, so changes to nested objects in the copy don’t affect the original.
+Use case: For nested structures like lists of lists or dicts with list values, shallow copy can lead to unintended shared mutations. Deep copy is safer but slower and uses more memory.
+Example:
+import copy
+original = [[1,2,3], [4,5,6]]
+shallow = copy.copy(original)
+deep = copy.deepcopy(original)
+
+shallow[0][0] = 99
+print(original[0][0])  # 99 (changed)
+deep[0][0] = 100
+print(original[0][0])  # 99 (unchanged)
+
+Q3. How does Python manage memory? Explain reference counting and garbage collection.
+Answer:
+Python uses:
+Reference counting: Each object keeps count of references pointing to it. When count reaches zero, memory is freed immediately.
+Garbage collector (GC): Handles cyclic references (e.g., object A references B, B references A). The GC runs periodically and uses generational collection (young, middle, old) to optimize performance.
+Why both? Reference counting is deterministic but can't handle cycles. GC handles cycles but is non-deterministic.
+Memory optimization: Python uses memory pools (arenas) for small objects to reduce fragmentation. sys.getrefcount() shows reference count.
+
+Q4. What is the Global Interpreter Lock (GIL)? How does it affect multithreading?
+Answer:
+The GIL is a mutex in CPython that allows only one thread to execute Python bytecode at a time, even on multi-core systems. 
+It simplifies memory management (no need for fine-grained locks) but makes CPU-bound multithreading ineffective.
+Impact:
+I/O-bound tasks (file/network operations): GIL is released during I/O, so threading works well.
+CPU-bound tasks (heavy computation): Use multiprocessing instead of threading to bypass GIL.
+Workarounds: multiprocessing, asyncio, or using C extensions (NumPy releases GIL).
+
+Q5. Explain *args and **kwargs with real-world examples.
+Answer:
+*args (arguments): collects extra positional arguments as a tuple.
+**kwargs (keyword arguments): collects extra keyword arguments as a dict.
+Real-world: Decorators, wrapper functions, subclassing where you need to pass unknown parameters to parent classes, or functions that handle variable inputs like logging.
+Example:
+def create_user(name, *args, **kwargs):
+    print(f"Name: {name}")
+    print(f"Extra positional: {args}")
+    print(f"Extra keyword: {kwargs}")
+
+create_user("Alice", 25, "Engineer", city="NYC", active=True)
+# Output: Name: Alice, Extra positional: (25, 'Engineer'), Extra keyword: {'city': 'NYC', 'active': True}
+
