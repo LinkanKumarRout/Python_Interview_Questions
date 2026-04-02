@@ -1,0 +1,64 @@
+Section 5: Exception Handling & Debugging
+
+Q21. Explain try, except, else, finally with execution order.
+Answer:
+try: code that may raise an exception.
+except: catches specific exceptions.
+else: runs if no exception occurred (good for code that shouldn't be in try).
+finally: always runs (cleanup like file close, DB disconnect).
+Order: try -> except (if error) or else (if no error) -> finally.
+
+try:
+    f = open('file.txt')
+except FileNotFoundError:
+    print("Not found")
+else:
+    print(f.read())  # runs only if no exception
+finally:
+    f.close()  # always runs
+
+Q22. What is the difference between raise and assert?
+Answer:
+raise explicitly throws an exception (any type) – used for error conditions.
+assert checks a condition; if false, raises AssertionError – used for debugging and invariants, can be disabled with -O flag.
+Example:
+def divide(a, b):
+    assert b != 0, "Division by zero"  # for debugging
+    if b == 0:
+        raise ValueError("Cannot divide by zero")  # production error
+    return a/b
+
+Q23. How do you create a custom exception class?
+Answer:
+Inherit from Exception (or a subclass like ValueError). Add custom attributes/methods if needed.
+class InsufficientFundsError(Exception):
+    def __init__(self, balance, amount):
+        self.balance = balance
+        self.amount = amount
+        super().__init__(f"Cannot withdraw {amount}, balance only {balance}")
+
+# Usage
+raise InsufficientFundsError(100, 200)
+
+Q24. Explain pdb – Python Debugger.
+Answer:
+pdb is the built-in interactive debugger. Common commands:
+break or b – set breakpoint
+continue or c – resume execution
+step or s – step into function
+next or n – step over
+print or p – print variable
+list – show code
+Usage: import pdb; pdb.set_trace() (or breakpoint() in Python 3.7+).
+
+Q25. What is logging vs print? When to use each?
+Answer:
+print(): quick debugging, scripts, interactive development.
+logging: production, persistent records, different levels (DEBUG, INFO, WARNING, ERROR, CRITICAL), configurable outputs (file, network), can be disabled per level.
+Example:
+import logging
+logging.basicConfig(level=logging.INFO, filename='app.log')
+logging.info("User logged in")
+logging.error("Failed to connect")
+
+
