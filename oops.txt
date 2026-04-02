@@ -1,0 +1,94 @@
+Section 3: Object-Oriented Programming (OOP)
+
+Q11. What is the difference between @staticmethod, @classmethod, and instance methods?
+Answer:
+Instance method: Takes self, can access/modify instance state and class state.
+Class method: Takes cls, can modify class state (affects all instances). Used for factory methods.
+Static method: Takes no special first argument, behaves like a regular function but belongs to class namespace. Used for utility functions.
+Example:
+class Employee:
+    company = "TechCorp"
+    def __init__(self, name):
+      self.name = name
+    def instance_method(self):
+      return f"{self.name} works at {self.company}"
+    @classmethod
+    def change_company(cls, new_name):
+      cls.company = new_name
+    @staticmethod
+    def is_workday(day): return day.weekday() < 5
+
+Q12. Explain method resolution order (MRO) in multiple inheritance.
+Answer:
+MRO determines which method Python calls when a class inherits from multiple parents with overlapping method names. 
+Python uses C3 linearization (depth-first, left-to-right, but preserving monotonicity). You can view MRO via ClassName.__mro__ or ClassName.mro().
+Example:
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
+print(D.__mro__)  # (D, B, C, A, object)
+
+Q13. What are __slots__ and why would you use them?
+Answer:
+__slots__ restricts instance attributes to a fixed set, reducing memory usage (no __dict__ per instance) and improving attribute access speed.
+Use case: When creating millions of instances (e.g., data processing, game objects). Trade-off: Cannot add new attributes dynamically.
+class Point:
+    __slots__ = ('x', 'y')
+    def __init__(self, x, y): 
+      self.x = x; 
+      self.y = y
+# p.z = 5 -> AttributeError
+
+Q14. Explain composition vs inheritance with pros and cons.
+Answer:
+Inheritance ("is-a"): Class inherits from base class. Pros: code reuse, polymorphism. Cons: tight coupling, fragile base class problem.
+Composition ("has-a"): Class contains instances of other classes. Pros: more flexible, easier to test, and encapsulation. Cons: more boilerplate, may need delegation.
+Example: A car can inherit from Vehicle (inheritance) or have Engine, Wheels (composition). Prefer composition for complex systems.
+class Component:
+   # composite class constructor
+    def __init__(self):
+        print('Component class object created...')
+
+    # composite class instance method
+    def m1(self):
+        print('Component class m1() method executed...')
+
+class Composite:
+    # composite class constructor
+    def __init__(self):
+        # creating object of component class
+        self.obj1 = Component()
+        print('Composite class object also created...')
+
+     # composite class instance method
+    def m2(self):
+        print('Composite class m2() method executed...')
+        # calling m1() method of component class
+        self.obj1.m1()
+
+# creating object of composite class
+obj2 = Composite()
+# calling m2() method of composite class
+obj2.m2()
+
+Q15. How do you implement a singleton pattern in Python?
+Answer:
+Several ways:
+Module-level global instance (Python modules are singletons by nature).
+Decorator:
+def singleton(cls):
+    instances = {}
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    return get_instance
+
+Override __new__:
+class Singleton:
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
