@@ -1,0 +1,66 @@
+Concurrency & Parallelism
+
+Q31. Compare threading, multiprocessing, and asyncio.
+Answer:
+Threading: Lightweight, shared memory, GIL limits CPU-bound tasks. Best for I/O-bound tasks.
+Multiprocessing: Separate processes, bypasses GIL, higher memory overhead. Best for CPU-bound tasks.
+Asyncio: Single-threaded, event loop, cooperative multitasking. Best for high-concurrency I/O (thousands of connections).
+
+Decision guide:
+I/O bound + many connections → asyncio
+I/O bound + few connections → threading
+CPU bound → multiprocessing
+
+Q32. Write a simple producer-consumer using queue.Queue.
+Answer:
+import threading, queue, time
+q = queue.Queue(maxsize=5)
+def producer():
+    for i in range(10):
+        q.put(i)
+        print(f"Produced {i}")
+        time.sleep(0.5)
+def consumer():
+    while True:
+        item = q.get()
+        print(f"Consumed {item}")
+        q.task_done()
+threading.Thread(target=producer).start()
+threading.Thread(target=consumer, daemon=True).start()
+q.join()  # wait until all items processed
+
+Q33. What is a future object? How is it used in concurrent.futures?
+Answer:
+A Future represents an asynchronous computation result that may not be ready yet. It allows non-blocking checks, callbacks, and timeouts.
+from concurrent.futures import ThreadPoolExecutor
+def square(n): return n*n
+with ThreadPoolExecutor() as executor:
+    future = executor.submit(square, 5)
+    print(future.result())  # blocks until done
+    # or future.add_done_callback(lambda f: print(f.result()))
+
+Q34. Explain async/await with an example.
+Answer:
+async def defines a coroutine. await yields control back to event loop while waiting for async operation.
+import asyncio
+async def fetch_data(delay):
+    await asyncio.sleep(delay)  # non-blocking
+    return "Data"
+async def main():
+    result = await fetch_data(2)
+    print(result)
+asyncio.run(main())
+
+Q35. What is a race condition? How to prevent it?
+Answer:
+Race condition occurs when multiple threads access shared data concurrently and at least one modifies it, leading to unpredictable results.
+Prevention: Use locks (threading.Lock), atomic operations, or queues.
+  
+lock = threading.Lock()
+counter = 0
+def increment():
+    global counter
+    with lock:
+        counter += 1  # critical section
+
+  
