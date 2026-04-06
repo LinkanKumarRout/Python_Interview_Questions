@@ -1,0 +1,86 @@
+Decorators & Metaprogramming
+
+Q36. Write a decorator that measures execution time.
+Answer:
+import time
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        end = time.perf_counter()
+        print(f"{func.__name__} took {end - start:.6f}s")
+        return result
+    return wrapper
+
+@timer
+def slow_function():
+    time.sleep(1)
+
+Q37. Create a decorator with arguments (e.g., @repeat(3)).
+Answer:
+Nested decorator pattern: outer function takes arguments, returns a decorator.
+def repeat(times):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            for _ in range(times):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
+
+@repeat(3)
+def greet(): 
+  print("Hello")
+
+Q38. What are functools.wraps and why use it?
+Answer:
+wraps preserves original function metadata (__name__, __doc__, __module__) when creating decorators. Without it, debugging is harder.
+from functools import wraps
+def my_decorator(f):
+    @wraps(f)  # preserves f's metadata
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+    return wrapper
+
+Q39. Explain property decorators (@property, @setter, @deleter).
+Answer:
+@property makes a method callable as an attribute, allowing computed attributes or validation.
+
+class Temperature:
+    def __init__(self, celsius):
+        self._celsius = celsius
+    @property
+    def celsius(self):
+        return self._celsius
+    @celsius.setter
+    def celsius(self, value):
+        if value < -273.15:
+            raise ValueError("Too cold")
+        self._celsius = value
+    @property
+    def fahrenheit(self):
+        return self._celsius * 9/5 + 32
+
+Q40. What is a metaclass? When would you use one?
+Answer:
+A metaclass is the class of a class (like type). It controls class creation (e.g., registering subclasses, adding methods automatically, enforcing coding standards).
+Use case: ORMs (Django models), singleton patterns, API validation frameworks.
+class Meta(type):
+    def __new__(cls, name, bases, dct):
+        dct['version'] = 1.0
+        return super().__new__(cls, name, bases, dct)
+class MyClass(metaclass=Meta):
+    pass
+print(MyClass.version)  # 1.0
+
+
+
+          
+
+
+  
+
+
+
+
+    
