@@ -1,0 +1,47 @@
+Section 9: Testing
+------------------
+Q41. Explain unittest vs pytest.
+Answer:
+unittest: Built-in, class-based (inherits TestCase), uses assertEqual etc., setup/teardown methods.
+pytest: Third-party (more popular), function-based, plain assert, fixtures more powerful, less boilerplate.
+Example pytest:
+def test_addition():
+    assert 1 + 1 == 2
+
+Q42. How to mock an API call in unit tests?
+Answer:
+Use unittest.mock or pytest-mock to replace external calls.
+from unittest.mock import patch
+def fetch_data():
+    return requests.get('https://api.example.com').json()
+@patch('requests.get')
+def test_fetch_data(mock_get):
+    mock_get.return_value.json.return_value = {'key': 'value'}
+    result = fetch_data()
+    assert result == {'key': 'value'}
+
+Q43. What is test coverage? How to measure it?
+Answer:
+Coverage measures which lines of code are executed during tests. Use pytest-cov or coverage.py.
+pytest --cov=my_module tests/
+High coverage doesn't guarantee bug-free code but highlights untested parts.
+
+Q44. Explain parameterized tests.
+Answer:
+Run same test logic with different inputs using @pytest.mark.parametrize.
+import pytest
+@pytest.mark.parametrize("a,b,expected", [
+    (1,2,3), (0,0,0), (-1,1,0)
+])
+def test_add(a,b,expected):
+    assert a + b == expected
+
+Q45. What is TDD? Give an example workflow.
+Answer:
+Test-Driven Development: write failing test → write minimal code to pass → refactor.
+Workflow for a is_prime function:
+Write test_is_prime with cases (2→True, 4→False).
+Run test → fails.
+Implement is_prime.
+Test passes.
+Refactor.
