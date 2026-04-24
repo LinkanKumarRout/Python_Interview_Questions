@@ -1,0 +1,46 @@
+Section 10: Advanced Python & Performance
+-----------------------------------------
+Q46. How do you profile Python code for performance?
+Answer:
+
+cProfile (built-in): python -m cProfile script.py
+timeit for small snippets
+line_profiler for line-by-line
+memory_profiler for memory
+
+import cProfile
+def slow(): sum(range(10**7))
+cProfile.run('slow()')
+
+Q47. What is __slots__ performance benefit? (expanded)
+Answer:
+Without __slots__, each instance has a __dict__ (hash table) for attributes, consuming ~72 bytes overhead plus per-attribute memory. 
+With __slots__, attributes are stored in a tuple-like structure, reducing memory by 40-60% and speeding attribute access by ~10-20%. 
+Use when creating millions of objects.
+
+Q48. Explain lru_cache decorator from functools.
+Answer:
+@lru_cache(maxsize=128) caches function results based on arguments (Least Recently Used eviction). Perfect for recursive functions like Fibonacci.
+
+from functools import lru_cache
+@lru_cache(maxsize=None)
+def fib(n):
+    if n < 2: return n
+    return fib(n-1) + fib(n-2)
+# Without cache: exponential O(2^n); with cache: O(n)
+
+Q49. What are weak references? When to use weakref?
+Answer:
+Weak references don't increase reference count, so they don't prevent garbage collection. Used for caches, listeners, or parent references in trees to avoid memory leaks.
+
+import weakref
+class Node: pass
+parent = Node()
+child = Node()
+child.parent_ref = weakref.ref(parent)  # no cyclic reference
+
+Q50. Explain __slots__ vs __dict__ vs __weakref__.
+Answer:
+__dict__: stores instance attributes (dynamic).
+__slots__: disables __dict__, stores fixed attributes (memory efficient).
+__weakref__: allows weak references to instance. If you use __slots__, you must include __weakref__ in the list to allow weak refs.
