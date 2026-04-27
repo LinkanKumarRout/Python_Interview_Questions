@@ -1,0 +1,186 @@
+Section 11: Built-in Functions & Modules
+----------------------------------------
+Q51. How does the zip() function work? Give an example of creating a dictionary from two lists.
+Answer:
+zip() takes multiple iterables and aggregates them into tuples of corresponding elements. It stops at the shortest iterable. 
+To create a dictionary from two lists, use zip() with dict().
+Real-world scenario: Mapping user IDs to names, combining form fields with submitted values.
+keys = ['name', 'age', 'city']
+values = ['Alice', 30, 'New York']
+dictionary = dict(zip(keys, values))
+print(dictionary)  # {'name': 'Alice', 'age': 30, 'city': 'New York'}
+
+# With more than two lists
+ids = [1,2,3]
+names = ['A','B','C']
+for id, name in zip(ids, names):
+    print(f"{id}: {name}")
+
+Important: In Python 3.10+, zip() has a strict parameter that raises ValueError if lengths differ.
+
+Q52. Explain enumerate() with a real-world use case.
+Answer:
+enumerate() adds a counter to an iterable, returning tuples of (index, value). By default, index starts at 0, but you can specify start.
+Real-world: Displaying leaderboard ranks, tracking line numbers while parsing files, assigning IDs to items.
+# Parsing log file with line numbers
+with open('app.log') as f:
+    for line_num, line in enumerate(f, start=1):
+        if 'ERROR' in line:
+            print(f"Error at line {line_num}: {line.strip()}")
+
+# Leaderboard
+players = ['Alice', 'Bob', 'Charlie']
+for rank, name in enumerate(players, start=1):
+    print(f"Rank #{rank}: {name}")
+
+Why not just range(len())? enumerate() is more Pythonic, faster, and works with any iterable (not just sequences with __getitem__).
+
+Q53. What is the difference between any() and all()? Provide short-circuiting examples.
+Answer:
+any(iterable): Returns True if at least one element is truthy. Short-circuits (stops) at the first True.
+all(iterable): Returns True only if all elements are truthy. Short-circuits at the first False.
+Real-world: any() for validation (e.g., "does the user have any permission?"), all() for checks (e.g., "are all fields filled?")
+
+# any() stops at first True
+def expensive_check(x):
+    print(f"Checking {x}")
+    return x > 5
+
+values = [1, 3, 10, 2]
+print(any(expensive_check(x) for x in values))
+# Output: Checking 1, Checking 3, Checking 10 -> True (stops at 10)
+
+# all() stops at first False
+values = [10, 20, 0, 5]
+print(all(expensive_check(x) for x in values))
+# Output: Checking 10 (True), Checking 20 (True), Checking 0 (False) -> stops
+
+Q54. Explain the difference between sorted() and list.sort().
+Answer:
+sorted(iterable) → returns a new sorted list, works on any iterable, does not modify original.
+list.sort() → sorts in-place, returns None, only works on lists, more memory efficient for large lists.
+Decision guide: Use sorted() when you need to keep original order or sort non-lists. Use list.sort() for large lists to save memory.
+# sorted() on any iterable
+tup = (3,1,2)
+new_list = sorted(tup)  # [1,2,3], tup unchanged
+
+# list.sort() in-place
+nums = [3,1,2]
+nums.sort()  # nums becomes [1,2,3], returns None
+
+# Custom key functions
+words = ['banana', 'apple', 'cherry']
+sorted(words, key=len)  # ['apple', 'banana', 'cherry']
+
+Q55. When should you use is vs == in Python? Explain with None, True, False.
+Answer:
+== checks value equality – does object A have the same value as object B?
+is checks identity equality – are A and B the exact same object in memory?
+Use is for: comparing with None, True, False (singletons), and when you explicitly need identity (e.g., checking if two variables reference the same object).
+Real-world bug: Using == with None works by coincidence because None is a singleton, but is is the PEP 8 standard.
+x = None
+if x is None:  # Correct
+    pass
+
+# Pitfall:
+a = [1,2,3]
+b = [1,2,3]
+print(a == b)  # True (same values)
+print(a is b)  # False (different objects)
+
+# With small integers (-5 to 256), Python caches, so is may work accidentally
+c = 256
+d = 256
+print(c is d)  # True (cached)
+e = 257
+f = 257
+print(e is f)  # False (may differ, implementation detail – never rely on it)
+
+Q56. Explain eval() and exec(). Why are they dangerous?
+Answer:
+eval(expression): Evaluates a single expression and returns its value.
+exec(code): Executes any Python code (statements, loops, functions) and returns None.
+Danger: Both can run arbitrary code, leading to security vulnerabilities if used with untrusted input (e.g., user input, database values).
+# eval example
+result = eval("2 + 3 * 4")  # 14
+x = 10
+result = eval("x * 2")  # 20
+
+# exec example
+exec("def hello(): print('Hi')\nhello()")  # Prints 'Hi'
+
+# Security risk:
+user_input = "__import__('os').system('rm -rf /')"
+# eval(user_input)  # NEVER DO THIS – deletes files!
+
+Safer alternatives: ast.literal_eval() for literals (strings, numbers, tuples, dicts), or parse data manually.
+
+Q57. What is the difference between repr() and str()?
+Answer:
+str(): Returns a readable (user-friendly) string representation. Used by print().
+repr(): Returns an unambiguous (developer-friendly) string, ideally valid Python code to recreate the object. Used by debuggers and logs.
+Implementation: str(obj) calls obj.__str__(), repr(obj) calls obj.__repr__(). If __str__ is missing, Python falls back to __repr__.
+from datetime import datetime
+now = datetime.now()
+print(str(now))   # "2025-04-02 14:30:00" (human readable)
+print(repr(now))  # "datetime.datetime(2025, 4, 2, 14, 30, 0)" (precise)
+
+# For custom classes, define both
+class Person:
+    def __init__(self, name): self.name = name
+    def __str__(self): return f"Person: {self.name}"
+    def __repr__(self): return f"Person('{self.name}')"
+
+Q58. How does hash() work? What kinds of objects can be hashed?
+Answer:
+hash(obj) returns an integer hash value, used by dict keys and set elements. For two objects, if a == b, then hash(a) == hash(b) (but not vice versa due to collisions).
+Hashable objects must be immutable and implement __hash__() and __eq__():
+Immutable: int, str, tuple, frozenset
+Not hashable: list, dict, set, custom objects by default (unless you define __hash__)
+Real-world: Custom objects as dict keys require implementing __hash__ and __eq__ immutably.
+# Works
+d = { (1,2): "tuple key" }  # tuple is immutable
+
+# Fails
+# d = { [1,2]: "list key" }  # TypeError: unhashable type: 'list'
+
+# Custom hashable class
+class Point:
+    def __init__(self, x, y): self.x = x; self.y = y
+    def __hash__(self): return hash((self.x, self.y))
+    def __eq__(self, other): return (self.x, self.y) == (other.x, other.y)
+    def __repr__(self): return f"Point({self.x},{self.y})"
+
+Q59. What is the difference between help() and dir()?
+Answer:
+help(object): Opens interactive documentation (pager) showing docstrings, methods, and usage.
+dir(object): Returns a list of attributes and methods (strings) for the object.
+Real-world: dir() for quick exploration (e.g., "what can I call on this object?"), help() for detailed documentation.
+# Quick inspection
+print(dir("hello"))  # ['capitalize', 'casefold', 'center', ...]
+
+# Detailed docs
+help("hello".capitalize)  # Shows docstring: "Return a capitalized version of the string"
+
+# Without argument
+dir()   # List of current variable names
+help()  # Enters interactive help mode
+
+Q60. Explain locals() and globals().
+Answer:
+globals(): Returns dictionary of current global symbol table (module-level variables, functions, classes).
+locals(): Returns dictionary of current local symbol table (variables in current function/method scope).
+Real-world: Dynamic variable access, metaprogramming, debugging (inspect local state), or in certain frameworks.
+x = 100  # global
+
+def func(y):
+    z = 200  # local
+    print("Locals:", list(locals().keys()))   # ['y', 'z'] (plus maybe others)
+    print("Globals:", 'x' in globals())       # True
+
+# Modifying globals (use with caution!)
+globals()['x'] = 999
+print(x)  # 999
+
+Warning: Modifying locals() does not update local variables (implementation-dependent). Use globals() for dynamic global variable creation only when absolutely necessary (e.g., plugin systems).
+
