@@ -1981,7 +1981,7 @@ The important idea is that while one operation is waiting, the event loop can wo
 
 ---
 
-# Questions 41–60: Data Structures & Algorithms
+## 2. Data Structures & Algorithms (41–60)
 
 ## 41. What is the time complexity of common list operations?
 
