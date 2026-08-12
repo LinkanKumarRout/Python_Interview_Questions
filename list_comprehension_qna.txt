@@ -1,0 +1,29 @@
+1. write a program to fetch all words which name has Mr. initial ?
+names = ['Mrs. Kavya', "Mr. Satya", "Mr. Rajesh", "Ms. Rajani"]
+print([i for i in names if i.startswith("Mr."))
+
+2. Write a program to count total no of character not spaces in the given string ?
+st = "python is simple and easy to larn language"
+print(len([i for i in st if i != " "]))
+
+3. write a program to find all palindrome word from the list ?
+names = ["madam", "python", "dad", "language", "eye", "malayalam"]
+print([i for i in names if i == i[-1::-1]])
+
+4. write a program to fetch largest palindrome word ?
+names = ["madam", "python", "dad", "language", "eye", "malayalam"]
+print(i for i in [i for i in names if i == i[-1::-1]] if len(i) == max([len(i) for i in names if i == i[-1::-1]]))
+or
+print(max([i for i in names if i == i[-1::-1]], key=len))
+
+5. write a program to fetch the first and last character of each word from the given string ?
+st = "python is simple and easy to learn"
+print([x[0]+x[-1] for x in st.split()])
+
+6. write a program to fetch all words which contain 'a' character in the string ?
+st = "python is simple and easy to learn"
+print([x for x in st.split() if 'a' in x])
+
+7. write a program to fetch all words which starts and ends with a vowel ?
+st = "python is simple and easy to learn language"
+print([i for i in st.split() if i.lower()[0] in 'aeiou' and i.lower()[-1] in 'aeiou'])
