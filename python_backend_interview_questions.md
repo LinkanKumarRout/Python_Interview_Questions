@@ -20,165 +20,1966 @@
 
 ## 1. Python Fundamentals (1–40)
 
-### 1. What is the difference between a list and a tuple?
+## 1. What is the difference between a list and a tuple?
 
-**Answer:** Lists are mutable (`[]`); tuples are immutable (`()`). Lists support append/remove; tuples do not. Tuples are hashable (if contents are hashable) and can be used as dict keys. Tuples are slightly faster and use less memory for fixed collections.
+### Answer
 
-### 2. What is the difference between `==` and `is`?
+A **list** is mutable, meaning we can change its contents after creating it. A **tuple** is immutable, meaning we cannot change its contents after creation.
 
-**Answer:** `==` compares values (equality). `is` compares object identity (same memory address). Example: `a = [1]; b = [1]` → `a == b` is True, `a is b` is False.
+- List → `[]`
+- Tuple → `()`
 
-### 3. Explain mutable vs immutable types.
+### Example
 
-**Answer:** Mutable objects can change in place: `list`, `dict`, `set`, `bytearray`. Immutable objects cannot: `int`, `float`, `str`, `tuple`, `frozenset`, `bytes`. Reassignment creates a new object for immutables.
+```python
+my_list = [10, 20, 30]
+my_list.append(40)
 
-### 4. What are `*args` and `**kwargs`?
+print(my_list)
+# [10, 20, 30, 40]
+```
 
-**Answer:** `*args` collects extra positional arguments into a tuple. `**kwargs` collects extra keyword arguments into a dict. Useful for flexible APIs and wrappers.
+A tuple cannot be modified:
 
-### 5. What is a generator? How does it differ from a list?
+```python
+my_tuple = (10, 20, 30)
 
-**Answer:** A generator yields values lazily with `yield` (or a generator expression). It does not store all values in memory. Lists are eager and hold everything. Generators are one-pass iterators.
+# my_tuple.append(40)  # AttributeError
+```
 
-### 6. What is the GIL?
+Tuples can also be used as dictionary keys if all their elements are hashable:
 
-**Answer:** The Global Interpreter Lock (GIL) allows only one thread to execute Python bytecode at a time in CPython. It simplifies memory management but limits CPU-bound multithreading. I/O-bound work and multiprocessing still benefit.
+```python
+location = (10, 20)
 
-### 7. Difference between `@staticmethod`, `@classmethod`, and instance methods?
+data = {
+    location: "Point A"
+}
+```
 
-**Answer:** Instance methods take `self`. Class methods take `cls` and can access/modify class state. Static methods take neither; they are namespaced functions on the class with no implicit first argument.
+### Interview Point
 
-### 8. What are Python decorators?
+Use a **list** when the collection needs to change. Use a **tuple** for fixed data that should not change.
 
-**Answer:** Decorators are callable wrappers that modify or extend another function/class without changing its source. Syntax: `@decorator` above a `def`. Common uses: logging, auth, caching, timing.
+---
 
-### 9. Explain list comprehension vs generator expression.
+## 2. What is the difference between `==` and `is`?
 
-**Answer:** `[x for x in range(10)]` builds a full list. `(x for x in range(10))` returns a generator. Prefer generators for large sequences to save memory.
+### Answer
 
-### 10. What is `__init__` vs `__new__`?
+`==` checks whether two objects have the **same value**.
 
-**Answer:** `__new__` creates and returns a new instance (rarely overridden). `__init__` initializes the instance after creation. `__new__` is called before `__init__`.
+`is` checks whether two variables refer to the **exact same object**.
 
-### 11. What are dunder (magic) methods?
+### Example
 
-**Answer:** Special methods with double underscores (`__str__`, `__repr__`, `__len__`, `__eq__`, `__enter__`, etc.) that define object behavior with built-in operations and protocols.
+```python
+a = [1, 2, 3]
+b = [1, 2, 3]
 
-### 12. How does Python handle memory management?
+print(a == b)
+# True
 
-**Answer:** Reference counting plus a cyclic garbage collector. When refcount hits zero, memory is freed. GC handles reference cycles. Objects live on a private heap managed by Python.
+print(a is b)
+# False
+```
 
-### 13. What is the difference between `deepcopy` and `shallow copy`?
+Both lists contain the same values, so `==` is `True`. But they are two different list objects, so `is` is `False`.
 
-**Answer:** Shallow copy (`copy.copy`) copies the container but shares nested objects. Deep copy (`copy.deepcopy`) recursively copies nested objects. Mutating nested data in a shallow copy affects the original.
+Another common example:
 
-### 14. Explain `*`, `/`, and `*` as parameter separators.
+```python
+result = None
 
-**Answer:** `*` alone forces following parameters to be keyword-only. `/` forces preceding parameters to be positional-only (Python 3.8+). Useful for clearer APIs and preventing breaking changes.
+if result is None:
+    print("No value")
+```
 
-### 15. What is EAFP vs LBYL?
+### Interview Point
 
-**Answer:** EAFP (“Easier to Ask Forgiveness than Permission”) uses try/except. LBYL (“Look Before You Leap”) checks conditions first. Python style prefers EAFP when races or type checks are messy.
+Use `==` for value comparison and `is` mainly for identity checks such as `is None`.
 
-### 16. What does `if __name__ == "__main__":` do?
+---
 
-**Answer:** Code under that block runs only when the file is executed as a script, not when imported as a module. Keeps import side effects out of reusable code.
+## 3. Explain mutable vs immutable types.
 
-### 17. Difference between `range` and `xrange`?
+### Answer
 
-**Answer:** In Python 2, `range` returned a list and `xrange` was lazy. In Python 3, `range` is lazy (like `xrange`); `xrange` was removed.
+A **mutable object** can be changed after it is created.
 
-### 18. What are context managers? How do you write one?
+An **immutable object** cannot be changed after it is created.
 
-**Answer:** Objects used with `with` that manage setup/teardown (files, locks, DB sessions). Implement `__enter__`/`__exit__`, or use `@contextlib.contextmanager` with `yield`.
+### Mutable Example
 
-### 19. Explain `pass`, `continue`, and `break`.
+```python
+numbers = [1, 2, 3]
+numbers[0] = 100
 
-**Answer:** `pass` is a no-op placeholder. `continue` skips to the next loop iteration. `break` exits the nearest loop.
+print(numbers)
+# [100, 2, 3]
+```
 
-### 20. What is the difference between `append` and `extend`?
+The same list object was modified.
 
-**Answer:** `append(x)` adds `x` as a single element. `extend(iterable)` adds each item from the iterable. `a.append([1,2])` → nested list; `a.extend([1,2])` → flat.
+### Immutable Example
 
-### 21. How do you swap two variables in Python?
+```python
+name = "John"
 
-**Answer:** `a, b = b, a` — tuple unpacking; no temporary variable needed.
+# name[0] = "B"  # TypeError
+```
 
-### 22. What is a lambda function? Limitations?
+Instead, assigning a new string makes the variable refer to a new object:
 
-**Answer:** An anonymous single-expression function: `lambda x: x * 2`. Cannot contain statements, multiple expressions, or annotations easily. Prefer named `def` for complex logic.
+```python
+name = "John"
+name = "Bob"
+```
 
-### 23. Explain Python’s LEGB rule.
+Common mutable types:
 
-**Answer:** Name resolution order: Local → Enclosing → Global → Built-in. Closures see enclosing scopes; `nonlocal`/`global` alter binding.
+```text
+list
+dict
+set
+bytearray
+```
 
-### 24. What is `zip()`? What about unpacking?
+Common immutable types:
 
-**Answer:** `zip(a, b)` pairs elements until the shortest iterable ends. `zip(*pairs)` unpacks pairs back into separate sequences.
+```text
+int
+float
+str
+tuple
+frozenset
+bytes
+```
 
-### 25. Difference between `remove`, `pop`, and `del` for lists?
+### Interview Point
 
-**Answer:** `remove(value)` deletes the first matching value. `pop(i)` removes by index and returns it (default last). `del list[i]` removes by index without returning.
+Mutability matters when multiple variables reference the same object because changes to a mutable object can be visible through all references.
 
-### 26. What are f-strings? Pros?
+---
 
-**Answer:** Formatted string literals (`f"Hello {name}"`) evaluated at runtime. Faster and more readable than `%` or `.format()` for most cases. Support expressions and format specs.
+## 4. What are `*args` and `**kwargs`?
 
-### 27. How does exception handling work? `else` and `finally`?
+### Answer
 
-**Answer:** `try` runs code; `except` handles errors; `else` runs if no exception; `finally` always runs (cleanup). Prefer specific exceptions over bare `except`.
+`*args` allows a function to accept any number of **positional arguments**.
 
-### 28. What is `None`? Is it a singleton?
+`**kwargs` allows a function to accept any number of **keyword arguments**.
 
-**Answer:** `None` is the null object. There is only one `None` instance; compare with `is None`, not `== None`.
+### `*args` Example
 
-### 29. Explain duck typing.
+```python
+def add_numbers(*args):
+    return sum(args)
 
-**Answer:** “If it walks like a duck and quacks like a duck…” — type is determined by behavior (methods/attributes), not inheritance. Python favors interfaces via protocols over strict types.
+print(add_numbers(10, 20))
+# 30
 
-### 30. What is the difference between modules and packages?
+print(add_numbers(10, 20, 30, 40))
+# 100
+```
 
-**Answer:** A module is a `.py` file. A package is a directory with `__init__.py` (or namespace package) that groups modules. Import paths reflect the package hierarchy.
+Inside the function, `args` is a tuple.
 
-### 31. How do virtual environments work?
+### `**kwargs` Example
 
-**Answer:** Tools like `venv`/`virtualenv`/`poetry` isolate project dependencies. Each env has its own `site-packages` so projects don’t conflict. Activate before installing packages.
+```python
+def show_user(**kwargs):
+    print(kwargs)
 
-### 32. What is `pip` vs `poetry` vs `pipenv`?
+show_user(name="John", age=25)
+```
 
-**Answer:** `pip` installs packages; often with `requirements.txt`. Poetry and Pipenv manage dependencies + lockfiles + virtualenvs more rigorously. Poetry is widely used for apps/libraries today.
+Output:
 
-### 33. Explain `collections.defaultdict` and `Counter`.
+```python
+{'name': 'John', 'age': 25}
+```
 
-**Answer:** `defaultdict(factory)` auto-creates missing keys via `factory`. `Counter` counts hashable objects; supports most common / least common helpers.
+Inside the function, `kwargs` is a dictionary.
 
-### 34. What is `enumerate`?
+### Interview Point
 
-**Answer:** `enumerate(iterable, start=0)` yields `(index, value)` pairs — cleaner than manual counters.
+They are useful when designing flexible functions, decorators, wrappers, and APIs.
 
-### 35. Difference between `str` and `repr`?
+---
 
-**Answer:** `str()` is user-friendly display. `repr()` aims for unambiguous, often developer-facing representation (ideally `eval`-able). `__str__` vs `__repr__`.
+## 5. What is a generator? How does it differ from a list?
 
-### 36. How do you read a large file efficiently?
+### Answer
 
-**Answer:** Iterate line by line (`for line in f`) instead of `f.read()`. Use buffered reading, generators, or chunked reads. Avoid loading entire file into memory.
+A generator produces values **one at a time**, instead of storing all values in memory.
 
-### 37. What are type hints? Are they enforced?
+Generators commonly use `yield`.
 
-**Answer:** Annotations like `def f(x: int) -> str:` document expected types. Runtime does not enforce them (unless you use tools). Used by mypy, pyright, IDEs.
+### Example
 
-### 38. What is `dataclasses`?
+```python
+def numbers():
+    for i in range(5):
+        yield i
 
-**Answer:** `@dataclass` auto-generates `__init__`, `__repr__`, `__eq__`, etc. Reduces boilerplate for data-holding classes. Supports defaults, frozen, slots (3.10+).
+for number in numbers():
+    print(number)
+```
 
-### 39. Explain walrus operator `:=`.
+The values are generated one by one.
 
-**Answer:** Assignment expression (Python 3.8+): assigns and returns a value in one expression, e.g. `while (line := f.readline()):`.
+Compare this with:
 
-### 40. What is the difference between `async def` and normal `def`?
+```python
+numbers = [0, 1, 2, 3, 4]
+```
 
-**Answer:** `async def` defines a coroutine that must be awaited or scheduled on an event loop. Normal `def` runs synchronously. Mixing blocking I/O in async code can stall the loop.
+The list stores all five values in memory.
+
+A generator is especially useful for large data:
+
+```python
+def read_large_file(file):
+    for line in file:
+        yield line
+```
+
+### Interview Point
+
+Lists are useful when you need the complete collection and repeated access. Generators are useful for large or streaming data because they are **lazy and memory-efficient**.
+
+---
+
+## 6. What is the GIL?
+
+### Answer
+
+GIL stands for **Global Interpreter Lock**.
+
+In traditional CPython execution, the GIL allows only one thread at a time to execute Python bytecode within a process.
+
+This means Python threads are generally not ideal for **CPU-heavy Python code**.
+
+### Example
+
+```python
+def calculate():
+    total = 0
+
+    for i in range(10_000_000):
+        total += i
+```
+
+Using multiple Python threads may not provide the expected CPU parallelism for this kind of work.
+
+For CPU-bound work, **multiprocessing** or other parallel approaches can be more appropriate.
+
+For I/O-bound work such as:
+
+```text
+network requests
+file operations
+database calls
+```
+
+threads or asynchronous programming can still be very useful.
+
+### Interview Point
+
+The GIL is primarily a CPython implementation detail. Modern CPython also has optional free-threaded builds, so avoid saying that Python can *never* execute multiple threads.
+
+---
+
+## 7. Difference between `@staticmethod`, `@classmethod`, and instance methods?
+
+### Answer
+
+Python classes commonly have three types of methods.
+
+### Instance Method
+
+Receives `self`.
+
+```python
+class Student:
+    def greet(self):
+        print("Hello")
+```
+
+Use it when the method needs information from a particular object.
+
+### Class Method
+
+Receives `cls`.
+
+```python
+class Student:
+    school = "ABC School"
+
+    @classmethod
+    def get_school(cls):
+        return cls.school
+```
+
+It works with class-level data.
+
+### Static Method
+
+Receives neither `self` nor `cls`.
+
+```python
+class Math:
+    @staticmethod
+    def add(a, b):
+        return a + b
+```
+
+It is essentially a normal function placed inside the class namespace because it logically belongs there.
+
+### Easy Way to Remember
+
+```text
+self      → object
+cls       → class
+nothing   → static method
+```
+
+---
+
+## 8. What are Python decorators?
+
+### Answer
+
+A decorator is a callable that **wraps another function or class** and adds or changes its behavior without modifying the original source code.
+
+### Example
+
+```python
+from functools import wraps
+
+def logger(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print("Function started")
+        result = func(*args, **kwargs)
+        print("Function finished")
+        return result
+
+    return wrapper
+```
+
+Use it like this:
+
+```python
+@logger
+def greet():
+    print("Hello")
+
+greet()
+```
+
+Output:
+
+```text
+Function started
+Hello
+Function finished
+```
+
+The syntax:
+
+```python
+@logger
+def greet():
+    ...
+```
+
+is essentially equivalent to:
+
+```python
+greet = logger(greet)
+```
+
+Common uses include:
+
+```text
+logging
+authentication
+caching
+timing
+validation
+authorization
+```
+
+### Interview Point
+
+In real decorators, `functools.wraps` is commonly used so metadata such as the wrapped function's name and docstring is preserved.
+
+---
+
+## 9. Explain list comprehension vs generator expression.
+
+### Answer
+
+Both provide a concise way to generate values.
+
+### List Comprehension
+
+```python
+numbers = [x * 2 for x in range(5)]
+
+print(numbers)
+# [0, 2, 4, 6, 8]
+```
+
+The complete list is created immediately.
+
+### Generator Expression
+
+```python
+numbers = (x * 2 for x in range(5))
+
+print(numbers)
+# generator object
+```
+
+Values are generated only when needed:
+
+```python
+for number in numbers:
+    print(number)
+```
+
+### When to Use Which?
+
+Use a **list** when you need all values immediately or need to reuse the collection.
+
+Use a **generator** when processing potentially large data or when you only need to iterate once.
+
+---
+
+## 10. What is `__init__` vs `__new__`?
+
+### Answer
+
+`__new__` is responsible for **creating and returning an instance**.
+
+`__init__` is responsible for **initializing that instance**.
+
+The order is roughly:
+
+```text
+__new__()
+   ↓
+object created
+   ↓
+__init__()
+   ↓
+object initialized
+```
+
+### Example
+
+```python
+class Person:
+
+    def __new__(cls, name):
+        print("Creating object")
+        return super().__new__(cls)
+
+    def __init__(self, name):
+        print("Initializing object")
+        self.name = name
+```
+
+When we do:
+
+```python
+p = Person("John")
+```
+
+Output:
+
+```text
+Creating object
+Initializing object
+```
+
+### Interview Point
+
+You normally override `__init__`. `__new__` is mainly needed for advanced cases such as immutable types or custom object creation.
+
+---
+
+## 11. What are dunder/magic methods?
+
+### Answer
+
+Dunder means **double underscore**.
+
+These are special methods that allow Python objects to work with built-in operations and protocols.
+
+Examples:
+
+```text
+__init__
+__str__
+__repr__
+__len__
+__eq__
+__add__
+__enter__
+__exit__
+```
+
+### Example
+
+```python
+class Person:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+```
+
+Now:
+
+```python
+person = Person("John")
+
+print(person)
+```
+
+Python effectively uses:
+
+```python
+person.__str__()
+```
+
+Similarly:
+
+```python
+len(obj)
+```
+
+can invoke:
+
+```python
+obj.__len__()
+```
+
+### Interview Point
+
+Dunder methods allow custom classes to participate naturally in Python's protocols and operators.
+
+---
+
+## 12. How does Python handle memory management?
+
+### Answer
+
+Python manages memory automatically.
+
+In CPython, an important mechanism is **reference counting**.
+
+For example:
+
+```python
+a = [1, 2, 3]
+b = a
+```
+
+Both `a` and `b` reference the same list.
+
+When references are removed:
+
+```python
+del a
+del b
+```
+
+the object can become unreachable and its memory can be reclaimed.
+
+Python also has a **cyclic garbage collector** that handles reference cycles.
+
+For example:
+
+```python
+a = []
+b = []
+
+a.append(b)
+b.append(a)
+```
+
+These objects reference each other, forming a cycle.
+
+### Interview Point
+
+Python uses automatic memory management. CPython primarily uses reference counting plus cyclic garbage collection.
+
+---
+
+## 13. What is the difference between `deepcopy` and `shallow copy`?
+
+### Answer
+
+A **shallow copy** creates a new outer object but keeps references to nested objects.
+
+A **deep copy** recursively copies nested objects too.
+
+### Example
+
+```python
+import copy
+
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)
+deep = copy.deepcopy(original)
+```
+
+Now:
+
+```python
+shallow[0].append(100)
+
+print(original)
+# [[1, 2, 100], [3, 4]]
+```
+
+The nested list is shared, so the original is also affected.
+
+But:
+
+```python
+deep[0].append(200)
+
+print(original)
+# [[1, 2, 100], [3, 4]]
+```
+
+The deep copy has its own nested objects.
+
+### Easy Way to Remember
+
+```text
+Shallow copy:
+new outer object → same nested objects
+
+Deep copy:
+new outer object → new nested objects
+```
+
+---
+
+## 14. Explain `/` and `*` as parameter separators.
+
+### Answer
+
+`/` means parameters before it are **positional-only**.
+
+`*` means parameters after it are **keyword-only**.
+
+### Positional-Only
+
+```python
+def greet(name, /):
+    print(name)
+
+greet("John")       # valid
+greet(name="John")  # TypeError
+```
+
+### Keyword-Only
+
+```python
+def greet(name, *, message):
+    print(name, message)
+
+greet("John", message="Hello")
+```
+
+But this is invalid:
+
+```python
+greet("John", "Hello")
+```
+
+because `message` must be supplied by keyword.
+
+### Interview Point
+
+These separators help create clear APIs and can make future parameter-name changes safer.
+
+---
+
+## 15. What is EAFP vs LBYL?
+
+### Answer
+
+EAFP means:
+
+> Easier to Ask for Forgiveness than Permission.
+
+Instead of checking first, you perform the operation and handle an exception if necessary.
+
+### EAFP
+
+```python
+try:
+    value = data["name"]
+except KeyError:
+    value = "Unknown"
+```
+
+LBYL means:
+
+> Look Before You Leap.
+
+You check before performing the operation.
+
+```python
+if "name" in data:
+    value = data["name"]
+else:
+    value = "Unknown"
+```
+
+Python often favors EAFP because the operation itself can be the best test, especially when the state could change between checking and using it.
+
+### Interview Point
+
+Neither approach is universally better. Choose based on readability, expected failures, and the operation involved.
+
+---
+
+## 16. What does `if __name__ == "__main__":` do?
+
+### Answer
+
+Python gives every module a special variable called `__name__`.
+
+If a file is run directly:
+
+```bash
+python app.py
+```
+
+then:
+
+```python
+__name__ == "__main__"
+```
+
+If the file is imported:
+
+```python
+import app
+```
+
+then:
+
+```python
+__name__ == "app"
+```
+
+### Example
+
+```python
+def main():
+    print("Application started")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+This means `main()` runs when the file is executed directly but not simply because another file imports it.
+
+### Interview Point
+
+This pattern helps keep executable code separate from reusable module code and reduces unwanted import-time side effects.
+
+---
+
+## 17. Difference between `range` and `xrange`?
+
+### Answer
+
+This is mainly a **Python 2 vs Python 3** question.
+
+In Python 2:
+
+```python
+range(1000000)
+```
+
+created a list.
+
+`xrange()` generated values lazily.
+
+In Python 3, `xrange()` was removed and `range()` behaves like the old lazy `xrange()`.
+
+```python
+numbers = range(1_000_000)
+```
+
+This does not create a million-element list.
+
+### Interview Point
+
+In modern Python, use `range()`. There is no `xrange()`.
+
+---
+
+## 18. What are context managers? How do you write one?
+
+### Answer
+
+Context managers manage resources automatically, especially setup and cleanup.
+
+They are commonly used with:
+
+```python
+with
+```
+
+### Example: File
+
+```python
+with open("data.txt") as file:
+    content = file.read()
+```
+
+When the `with` block finishes, Python automatically closes the file.
+
+Without a context manager, you'd need:
+
+```python
+file = open("data.txt")
+
+try:
+    content = file.read()
+finally:
+    file.close()
+```
+
+### Creating Your Own Context Manager
+
+A class-based context manager implements:
+
+```python
+__enter__()
+__exit__()
+```
+
+Example:
+
+```python
+class MyContext:
+    def __enter__(self):
+        print("Entering")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Exiting")
+
+
+with MyContext():
+    print("Inside")
+```
+
+You can also use `contextlib.contextmanager` for simpler cases.
+
+### Interview Point
+
+Context managers are useful whenever something must be reliably cleaned up, such as files, locks, database transactions, or connections.
+
+---
+
+## 19. Explain `pass`, `continue`, and `break`.
+
+### Answer
+
+They have completely different purposes.
+
+### `pass`
+
+Does nothing.
+
+```python
+def future_function():
+    pass
+```
+
+Useful as a placeholder.
+
+### `continue`
+
+Skips the current iteration.
+
+```python
+for i in range(5):
+    if i == 2:
+        continue
+
+    print(i)
+```
+
+Output:
+
+```text
+0
+1
+3
+4
+```
+
+### `break`
+
+Stops the loop completely.
+
+```python
+for i in range(5):
+    if i == 2:
+        break
+
+    print(i)
+```
+
+Output:
+
+```text
+0
+1
+```
+
+### Easy Way to Remember
+
+```text
+pass     → do nothing
+continue → skip this iteration
+break    → stop the loop
+```
+
+---
+
+## 20. What is the difference between `append()` and `extend()`?
+
+### Answer
+
+`append()` adds **one object** to the list.
+
+`extend()` adds the elements of an iterable individually.
+
+### `append()`
+
+```python
+numbers = [1, 2]
+
+numbers.append([3, 4])
+
+print(numbers)
+# [1, 2, [3, 4]]
+```
+
+### `extend()`
+
+```python
+numbers = [1, 2]
+
+numbers.extend([3, 4])
+
+print(numbers)
+# [1, 2, 3, 4]
+```
+
+### Easy Way to Remember
+
+```text
+append → add one item
+extend → add multiple items
+```
+
+---
+
+## 21. How do you swap two variables in Python?
+
+### Answer
+
+Python supports tuple unpacking, so you don't need a temporary variable.
+
+```python
+a = 10
+b = 20
+
+a, b = b, a
+
+print(a)
+# 20
+
+print(b)
+# 10
+```
+
+Python evaluates the right-hand side first and then assigns the values.
+
+The traditional approach would be:
+
+```python
+temp = a
+a = b
+b = temp
+```
+
+Python's approach is cleaner and idiomatic.
+
+---
+
+## 22. What is a lambda function? What are its limitations?
+
+### Answer
+
+A lambda is a small anonymous function containing a single expression.
+
+```python
+square = lambda x: x * x
+
+print(square(5))
+# 25
+```
+
+A common use is with functions such as `sorted()`:
+
+```python
+students = [
+    ("John", 25),
+    ("Alice", 20),
+    ("Bob", 22)
+]
+
+students.sort(key=lambda student: student[1])
+```
+
+Lambdas are designed for simple expressions, not complex multi-statement logic.
+
+For complex logic, use `def`:
+
+```python
+def calculate_tax(amount):
+    # complex logic
+    ...
+```
+
+### Interview Point
+
+Use lambda for small, simple functions. Don't force complex logic into a lambda just to make the code shorter.
+
+---
+
+## 23. Explain Python's LEGB rule.
+
+### Answer
+
+LEGB describes how Python searches for a variable name.
+
+```text
+L → Local
+E → Enclosing
+G → Global
+B → Built-in
+```
+
+### Example
+
+```python
+x = "global"
+
+def outer():
+    x = "enclosing"
+
+    def inner():
+        x = "local"
+        print(x)
+
+    inner()
+
+outer()
+```
+
+Output:
+
+```text
+local
+```
+
+Python first searches the local scope.
+
+If it doesn't find the variable, it checks the enclosing scope, then global scope, then built-ins.
+
+`nonlocal` can modify an enclosing variable, while `global` refers to a module-level variable.
+
+---
+
+## 24. What is `zip()`? What about unpacking?
+
+### Answer
+
+`zip()` combines elements from multiple iterables.
+
+```python
+names = ["John", "Alice", "Bob"]
+ages = [25, 30, 22]
+
+result = zip(names, ages)
+
+print(list(result))
+```
+
+Output:
+
+```python
+[
+    ("John", 25),
+    ("Alice", 30),
+    ("Bob", 22)
+]
+```
+
+By default, `zip()` stops when the shortest iterable is exhausted.
+
+### Unpacking with `zip(*)`
+
+```python
+pairs = [(1, "a"), (2, "b"), (3, "c")]
+
+numbers, letters = zip(*pairs)
+
+print(numbers)
+# (1, 2, 3)
+
+print(letters)
+# ('a', 'b', 'c')
+```
+
+Here `*pairs` unpacks the list into separate arguments to `zip()`.
+
+---
+
+## 25. Difference between `remove`, `pop`, and `del` for lists?
+
+### Answer
+
+They all remove elements, but they work differently.
+
+### `remove()`
+
+Removes the first matching **value**.
+
+```python
+numbers = [10, 20, 30, 20]
+
+numbers.remove(20)
+
+print(numbers)
+# [10, 30, 20]
+```
+
+### `pop()`
+
+Removes an element by **index** and returns it.
+
+```python
+numbers = [10, 20, 30]
+
+value = numbers.pop(1)
+
+print(value)
+# 20
+```
+
+### `del`
+
+Deletes an element or slice.
+
+```python
+numbers = [10, 20, 30]
+
+del numbers[1]
+
+print(numbers)
+# [10, 30]
+```
+
+### Easy Way to Remember
+
+```text
+remove → value
+pop    → index + returns item
+del    → delete by index/slice
+```
+
+---
+
+## 26. What are f-strings? What are their advantages?
+
+### Answer
+
+F-strings provide a clean way to insert expressions into strings.
+
+```python
+name = "John"
+age = 25
+
+message = f"My name is {name} and I am {age} years old."
+
+print(message)
+```
+
+Output:
+
+```text
+My name is John and I am 25 years old.
+```
+
+You can also put expressions inside them:
+
+```python
+a = 10
+b = 20
+
+print(f"Total = {a + b}")
+```
+
+Output:
+
+```text
+Total = 30
+```
+
+They also support formatting:
+
+```python
+price = 1234.5678
+
+print(f"{price:.2f}")
+# 1234.57
+```
+
+### Interview Point
+
+F-strings are generally more readable than older `%` formatting and `.format()` for modern Python code.
+
+---
+
+## 27. How does exception handling work? What are `else` and `finally`?
+
+### Answer
+
+Python uses:
+
+```text
+try
+except
+else
+finally
+```
+
+### Example
+
+```python
+try:
+    result = 10 / 0
+
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+
+else:
+    print("Calculation successful")
+
+finally:
+    print("This always runs")
+```
+
+The flow is:
+
+```text
+try
+ ↓
+exception?
+ ├── yes → except
+ └── no  → else
+ ↓
+finally
+```
+
+- `try` → code that might raise an exception
+- `except` → handles the exception
+- `else` → runs when no exception occurs
+- `finally` → runs regardless of success or failure
+
+### Interview Point
+
+Prefer specific exceptions over a bare `except`.
+
+For example:
+
+```python
+except ValueError:
+    ...
+```
+
+is usually better than:
+
+```python
+except:
+    ...
+```
+
+---
+
+## 28. What is `None`? Is it a singleton?
+
+### Answer
+
+`None` represents the absence of a value.
+
+For example:
+
+```python
+result = None
+```
+
+It does not mean zero, false, or an empty string:
+
+```text
+None ≠ 0
+None ≠ False
+None ≠ ""
+```
+
+There is only one `None` object, so the recommended check is:
+
+```python
+if result is None:
+    print("No result")
+```
+
+Not:
+
+```python
+if result == None:
+    ...
+```
+
+### Interview Point
+
+Use `is None` because you're checking whether the object is specifically the `None` singleton.
+
+---
+
+## 29. Explain duck typing.
+
+### Answer
+
+Duck typing means Python generally cares about **what an object can do**, rather than what class it belongs to.
+
+The idea is:
+
+> If it behaves like a duck, we can treat it like a duck.
+
+### Example
+
+```python
+def make_sound(animal):
+    animal.sound()
+```
+
+We don't necessarily care whether `animal` is a `Dog`, `Cat`, or another class.
+
+As long as it has:
+
+```python
+sound()
+```
+
+it can work with the function.
+
+```python
+class Dog:
+    def sound(self):
+        print("Woof")
+
+
+class Cat:
+    def sound(self):
+        print("Meow")
+```
+
+Both work:
+
+```python
+make_sound(Dog())
+make_sound(Cat())
+```
+
+### Interview Point
+
+Python often uses behavior-based interfaces rather than requiring inheritance from a common base class.
+
+---
+
+## 30. What is the difference between modules and packages?
+
+### Answer
+
+A **module** is generally a Python file.
+
+For example:
+
+```text
+calculator.py
+```
+
+A **package** is a way to organize multiple modules into a namespace.
+
+Example:
+
+```text
+myapp/
+    __init__.py
+    users.py
+    payments.py
+    orders.py
+```
+
+Here:
+
+```text
+users.py       → module
+payments.py    → module
+myapp/         → package
+```
+
+You can import:
+
+```python
+from myapp import users
+```
+
+Modern Python also supports **namespace packages**, so `__init__.py` is not always required.
+
+---
+
+## 31. How do virtual environments work?
+
+### Answer
+
+A virtual environment creates an isolated Python environment for a project.
+
+For example:
+
+```bash
+python -m venv .venv
+```
+
+You then activate it and install project dependencies.
+
+This prevents projects from interfering with each other.
+
+For example:
+
+```text
+Project A
+Django 4.x
+
+Project B
+Django 5.x
+```
+
+Both projects can use different versions.
+
+Without virtual environments, installing a package globally can create dependency conflicts.
+
+### Interview Point
+
+A virtual environment isolates project-specific Python packages and executables from the system/global environment.
+
+---
+
+## 32. What is `pip` vs `poetry` vs `pipenv`?
+
+### Answer
+
+They solve related but different parts of Python dependency management.
+
+### `pip`
+
+Primarily a package installer.
+
+```bash
+pip install requests
+```
+
+You can commonly manage dependencies using:
+
+```text
+requirements.txt
+```
+
+### Poetry
+
+Provides dependency management, lockfiles, packaging, and project configuration.
+
+```bash
+poetry add requests
+```
+
+### Pipenv
+
+Combines package management and virtual-environment management, using files such as:
+
+```text
+Pipfile
+Pipfile.lock
+```
+
+### Interview Point
+
+A simple way to answer:
+
+> `pip` is primarily a package installer, while Poetry and Pipenv provide more complete dependency/project management workflows.
+
+---
+
+## 33. Explain `collections.defaultdict` and `Counter`.
+
+### Answer
+
+Both are available from Python's `collections` module.
+
+### `defaultdict`
+
+It automatically creates a default value when a key doesn't exist.
+
+```python
+from collections import defaultdict
+
+groups = defaultdict(list)
+
+groups["developers"].append("John")
+groups["developers"].append("Alice")
+
+print(groups)
+```
+
+Conceptually:
+
+```python
+{
+    "developers": ["John", "Alice"]
+}
+```
+
+Without `defaultdict`, you'd often need to check whether the key exists first.
+
+### `Counter`
+
+Used to count objects.
+
+```python
+from collections import Counter
+
+letters = Counter("banana")
+
+print(letters)
+```
+
+Conceptually:
+
+```python
+{
+    "a": 3,
+    "n": 2,
+    "b": 1
+}
+```
+
+You can also get the most common items:
+
+```python
+letters.most_common(2)
+```
+
+### Interview Point
+
+Think:
+
+```text
+defaultdict → automatic default values
+Counter     → frequency counting
+```
+
+---
+
+## 34. What is `enumerate()`?
+
+### Answer
+
+`enumerate()` lets you iterate over both the **index and value** without manually maintaining a counter.
+
+Instead of:
+
+```python
+names = ["John", "Alice", "Bob"]
+
+i = 0
+
+for name in names:
+    print(i, name)
+    i += 1
+```
+
+Use:
+
+```python
+for i, name in enumerate(names):
+    print(i, name)
+```
+
+Output:
+
+```text
+0 John
+1 Alice
+2 Bob
+```
+
+You can also choose the starting number:
+
+```python
+for i, name in enumerate(names, start=1):
+    print(i, name)
+```
+
+Output:
+
+```text
+1 John
+2 Alice
+3 Bob
+```
+
+### Interview Point
+
+Use `enumerate()` when you need both the position and the value while iterating.
+
+---
+
+## 35. Difference between `str` and `repr`?
+
+### Answer
+
+Both are used to represent objects as strings, but they have different purposes.
+
+`str()` is generally intended to be **human-friendly**.
+
+`repr()` is generally intended to be **developer-friendly and unambiguous**.
+
+### Example
+
+```python
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"User(name={self.name!r})"
+```
+
+Then:
+
+```python
+user = User("John")
+
+print(str(user))
+# John
+
+print(repr(user))
+# User(name='John')
+```
+
+### Interview Point
+
+Think:
+
+```text
+str  → user-friendly display
+repr → developer/debugging representation
+```
+
+The idea that `repr()` should be `eval()`-able is a goal for some objects, not a universal guarantee.
+
+---
+
+## 36. How do you read a large file efficiently?
+
+### Answer
+
+Don't load the entire file into memory if it is very large.
+
+Instead, process it line by line:
+
+```python
+with open("large_file.txt") as file:
+    for line in file:
+        process(line)
+```
+
+Python's file iterator reads the file incrementally.
+
+Avoid this for very large files:
+
+```python
+content = file.read()
+```
+
+because it can require a large amount of memory.
+
+For binary or specially structured data, chunked reads can also be useful:
+
+```python
+while chunk := file.read(8192):
+    process(chunk)
+```
+
+### Interview Point
+
+For large files, streaming/iteration is usually preferable to loading everything into memory at once.
+
+---
+
+## 37. What are type hints? Are they enforced?
+
+### Answer
+
+Type hints allow us to describe what types a function expects and returns.
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+```
+
+This makes the code easier to understand and allows tools such as:
+
+```text
+mypy
+Pyright
+IDEs
+```
+
+to detect potential type problems.
+
+However, Python generally **does not enforce annotations at runtime**.
+
+For example:
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+add("10", "20")
+```
+
+Python doesn't automatically reject this just because the annotations say `int`.
+
+### Interview Point
+
+Type hints are primarily for documentation, static analysis, tooling, and developer experience.
+
+---
+
+## 38. What are `dataclasses`?
+
+### Answer
+
+`dataclasses` make it easier to create classes that mainly store data.
+
+Without a dataclass:
+
+```python
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+```
+
+With a dataclass:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class User:
+    name: str
+    age: int
+```
+
+Python can automatically provide methods such as:
+
+```text
+__init__
+__repr__
+__eq__
+```
+
+Example:
+
+```python
+user = User("John", 25)
+
+print(user)
+```
+
+Output:
+
+```text
+User(name='John', age=25)
+```
+
+Dataclasses can also support:
+
+```text
+default values
+frozen instances
+slots
+ordering
+```
+
+### Interview Point
+
+Use dataclasses when you need a concise class primarily intended to hold structured data.
+
+---
+
+## 39. Explain the walrus operator `:=`.
+
+### Answer
+
+The walrus operator `:=` is called an **assignment expression**.
+
+It allows you to assign a value and use that value in the same expression.
+
+### Example
+
+```python
+while (line := file.readline()):
+    print(line)
+```
+
+Here:
+
+```python
+line := file.readline()
+```
+
+does three things:
+
+1. Reads a line.
+2. Assigns it to `line`.
+3. Produces the value for the `while` condition.
+
+Another example:
+
+```python
+if (length := len("Python")) > 5:
+    print(length)
+```
+
+Output:
+
+```text
+6
+```
+
+### Interview Point
+
+The walrus operator is useful when a value needs to be calculated and immediately tested, but don't use it when it makes the code harder to read.
+
+---
+
+## 40. What is the difference between `async def` and normal `def`?
+
+### Answer
+
+A normal `def` creates a regular function that executes synchronously when called.
+
+```python
+def greet():
+    return "Hello"
+```
+
+An `async def` creates a **coroutine function**.
+
+```python
+async def greet():
+    return "Hello"
+```
+
+Calling an async function doesn't directly give you the final result:
+
+```python
+result = greet()
+```
+
+Instead, you normally use:
+
+```python
+result = await greet()
+```
+
+inside another async function.
+
+### Example
+
+```python
+import asyncio
+
+async def fetch_data():
+    await asyncio.sleep(1)
+    return "Data received"
+
+
+async def main():
+    result = await fetch_data()
+    print(result)
+
+
+asyncio.run(main())
+```
+
+Async programming is especially useful for many I/O-bound operations, such as:
+
+```text
+API requests
+network connections
+database operations
+web servers
+```
+
+The important idea is that while one operation is waiting, the event loop can work on another task.
+
+### Interview Point
+
+`async def` doesn't automatically make code faster. It is mainly useful for handling many concurrent I/O-bound operations efficiently. Blocking synchronous code inside an async function can still block the event loop.
+
+---
 
 ---
 
